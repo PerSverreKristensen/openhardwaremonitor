@@ -41,7 +41,65 @@ namespace OpenHardwareMonitor.Hardware {
       this.settings = settings ?? new Settings();
     }
 
-    private void Add(IGroup group) {
+        public List<float> CPUTemperatures
+        {
+            get
+            {
+                var result = new List<float>();
+                foreach (var group in groups)
+                {
+                    foreach (var hardware in group.Hardware)
+                    {
+                        if (hardware.HardwareType != HardwareType.CPU)
+                            continue;
+
+                        hardware.Update();
+
+                        foreach (var sensor in hardware.Sensors)
+                        {
+                            if (sensor.SensorType != SensorType.Temperature || sensor.Name.Contains("Package") || sensor.Name.Contains("Total"))
+                                continue;
+
+                            float? temp = sensor.Value;
+                            float temperature = temp ?? 0.0f;
+                            result.Add(temperature);
+                        }
+                    }
+                }
+                return result;
+            }
+        }
+
+        public List<float> GPUTemperatures
+        {
+            get
+            {
+                var result = new List<float>();
+                foreach (var group in groups)
+                {
+                    foreach (var hardware in group.Hardware)
+                    {
+                        if (hardware.HardwareType != HardwareType.GpuAti && hardware.HardwareType != HardwareType.GpuNvidia)
+                            continue;
+
+                        hardware.Update();
+
+                        foreach (var sensor in hardware.Sensors)
+                        {
+                            if (sensor.SensorType != SensorType.Temperature || sensor.Name.Contains("Package") || sensor.Name.Contains("Total"))
+                                continue;
+
+                            float? temp = sensor.Value;
+                            float temperature = temp ?? 0.0f;
+                            result.Add(temperature);
+                        }
+                    }
+                }
+                return result;
+            }
+        }
+
+        private void Add(IGroup group) {
       if (groups.Contains(group))
         return;
 
